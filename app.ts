@@ -12,6 +12,7 @@ import AWS from 'aws-sdk'
 import crypto from 'crypto'
 import Razorpay from 'razorpay'
 import mongoose from 'mongoose'
+import messageRoutes from './Message/routes/messageRoutes';
 
 require('dotenv').config();
 // const apiLogger = require('./controllers/apiLogger');
@@ -34,6 +35,7 @@ const bodyParser = require('body-parser');
 // cookie parser
 app.use(cookieParser());
 
+app.use('/api', messageRoutes);
 
 // api requests limit
 // const limiter = rateLimit({
