@@ -68,93 +68,10 @@ app.use(limiter);
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     success: true,
-    message: "GET API is working",
+    message: "GET API is working fine by Parth Doshi",
   });
 });
 
-app.get("/test2", async (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).json({
-    success: true,
-    message: "GET API2 is working",
-  });
-});
-
-app.get("/test-db", async (req: Request, res: Response): Promise<void> => {
-  try {
-    if (!mongoose.connection.db) {
-       res.status(500).json({ error: "MongoDB connection is not established" });
-    }
-    await mongoose.connection.db.admin().ping();
-    res.status(200).json({ message: "MongoDB is connected" });
-  } catch (err) {
-    res.status(500).json({ error: "MongoDB connection failed", details: err });
-  }
-});
-if (!process.env.MONGO_URI) {
-  throw new Error('MONGO_URI is not defined in environment variables');
-}
-mongoose.connect(process.env.MONGO_URI as string)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
-app.post("/order", async (req: Request, res: Response, next: NextFunction) => {
-  try{
-
-    const instance = new Razorpay({
-      key_id : process.env.RAZORPAY_KEY+"" ,
-      key_secret : process.env.RAZORPAY_KEY_SECRET
-    })
-
-    const options = {
-       amount : req.body.amount * 100,
-       currency : "INR",
-       receipt  : crypto.randomBytes(10).toString("hex")
-    }
-
-    instance.orders.create(options, (error, order) => {
-      if(error){
-        return res.status(500).json({
-          success:false,
-          message : "Something Went Wrong!",
-          error : error
-        })
-      }
-
-      res.status(200).json({ data: order })
-
-    })
-
-  }
-  catch(err){
-    res.status(500).json({
-      success: false,
-      err
-    });
-  }
-})
-
-app.post("/verify", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try{
-    const { razorPay_order_id, razorPay_payment_id, razorPay_signature } = req.body
-
-    const sign = razorPay_order_id + "|" + razorPay_payment_id
-    // @ts-ignore
-    const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET ).update(sign.toString()).digest("hex")
-    
-    if( razorPay_signature === expectedSign ){
-      res.status(200).json({ success :true, message:"Payment Verify Successfully!" })
-    }else{
-       res.status(400).json({ success :false, message:"Invalid Signature !" })
-    }
-  }
-  catch(error){
-    console.log(error);
-    res.status(500).json({
-      success : false,
-      message : "Something Went Wrong!",
-      error
-    })
-  }
-})
 
 // unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
