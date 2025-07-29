@@ -35,7 +35,7 @@ jobs:
         script: |
           cd nodejs-production-backend
           git pull origin main
-          npm ci --production
+          npm ci
           npm run build
           pm2 restart backend
           sudo systemctl reload nginx
