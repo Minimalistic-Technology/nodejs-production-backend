@@ -24,6 +24,20 @@ jobs:
     - name: Run tests
       run: npm test --if-present
 
+    - name: Debug SSH connection
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        debug: true
+        script: |
+          echo "Connected successfully!"
+          whoami
+          pwd
+          ls -la
+
     - name: Deploy to server
       uses: appleboy/ssh-action@v0.1.7
       with:
