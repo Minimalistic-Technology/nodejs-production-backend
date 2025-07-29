@@ -71,6 +71,14 @@ app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
     message: "GET API is working",
   });
 });
+
+app.get("/test2", async (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({
+    success: true,
+    message: "GET API2 is working",
+  });
+});
+
 app.get("/test-db", async (req: Request, res: Response): Promise<void> => {
   try {
     if (!mongoose.connection.db) {
