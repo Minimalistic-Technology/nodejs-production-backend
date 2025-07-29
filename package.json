@@ -14,7 +14,7 @@
     "build": "tsc",
 
     "install:ci": "npm ci",
-    "install:prod": "npm ci --production",
+    "install:prod": "npm ci",
 
     "start": "npm run build && node build/server.js",
 
