@@ -37,7 +37,6 @@ jobs:
           git pull origin main
           npm ci
           npm run build
-          npm prune --production
           pm2 restart backend
           sudo systemctl reload nginx
 
