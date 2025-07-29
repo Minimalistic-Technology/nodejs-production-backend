@@ -33,4 +33,10 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          pwd
+          cd nodejs-production-backend
+          git pull origin main
+          npm ci --production
+          npm run build
+          pm2 restart backend
+          sudo systemctl reload nginx
+
