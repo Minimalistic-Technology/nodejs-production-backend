@@ -12,6 +12,38 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Validate SSH env vars
+      run: |
+        echo "SSH_HOST set?    → ${SSH_HOST:+yes}${SSH_HOST:+" ( $SSH_HOST )"}"
+        echo "SSH_USERNAME set?    → ${SSH_USERNAME:+yes}"
+        echo "SSH_PORT set?    → ${SSH_PORT:+yes}{PORT: $SSH_PORT}"
+      env:
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_USER: ${{ secrets.SSH_USERNAME }}
+        SSH_PORT: ${{ secrets.SSH_PORT }}
+
+    - name: Test port reachability
+      run: nc -zv $SSH_HOST $SSH_PORT || true
+
+    - name: Test raw SSH connection (verbose)
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh -i ~/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -vvv \
+            -p $SSH_PORT \
+            $SSH_USERNAME@$SSH_HOST \
+            echo "SSH handshake successful"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_HOST:        ${{ secrets.SSH_HOST }}
+        SSH_USER:        ${{ secrets.SSH_USERNAME }}
+        SSH_PORT:        ${{ secrets.SSH_PORT }}
+
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
