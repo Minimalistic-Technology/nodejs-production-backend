@@ -50,7 +50,7 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   standardHeaders: true, 
   legacyHeaders: false,
-  handler: function (req, res, next) {
+  handler: function (req: Request, res: Response, next: NextFunction) {
       setTimeout(() => {
         next();
       }, 5000); 
@@ -65,12 +65,13 @@ app.use(limiter);
 
 
 // testing api
-app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).json({
-    success: true,
-    message: "GET API is working",
-  });
-});
+// app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
+//   res.status(200).json({
+//     success: true,
+//     message: "GET API is working",
+//   });
+// });
+
 app.get("/test-db", async (req: Request, res: Response): Promise<void> => {
   try {
     if (!mongoose.connection.db) {
@@ -147,6 +148,13 @@ app.post("/verify", async (req: Request, res: Response, next: NextFunction): Pro
     })
   }
 })
+
+app.get("/health-check", async (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({
+    success: true,
+    message: "Health check service running fine",
+  });
+});
 
 // unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
