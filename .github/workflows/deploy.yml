@@ -15,11 +15,11 @@ jobs:
     - name: Validate SSH env vars
       run: |
         echo "SSH_HOST set?    → ${SSH_HOST:+yes}${SSH_HOST:+" ( $SSH_HOST )"}"
-        echo "SSH_USERNAME set?    → ${SSH_USERNAME:+yes}"
+        echo "SSH_USER set?    → ${SSH_USER:+yes}"
         echo "SSH_PORT set?    → ${SSH_PORT:+yes}{PORT: $SSH_PORT}"
       env:
         SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_USER: ${{ secrets.SSH_USERNAME }}
+        SSH_USER: ${{ secrets.SSH_USER }}
         SSH_PORT: ${{ secrets.SSH_PORT }}
 
     - name: Test port reachability
@@ -35,12 +35,12 @@ jobs:
             -o UserKnownHostsFile=/dev/null \
             -vvv \
             -p $SSH_PORT \
-            $SSH_USERNAME@$SSH_HOST \
+            $SSH_USER@$SSH_HOST \
             echo "SSH handshake successful"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SSH_HOST:        ${{ secrets.SSH_HOST }}
-        SSH_USER:        ${{ secrets.SSH_USERNAME }}
+        SSH_USER:        ${{ secrets.SSH_USER }}
         SSH_PORT:        ${{ secrets.SSH_PORT }}
 
 
@@ -60,8 +60,8 @@ jobs:
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.SSD_HOST }}
-        username: ${{ secrets.SSD_USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.PORT }}
         debug: true
         script: |
@@ -74,8 +74,8 @@ jobs:
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.SSD_HOST }}
-        username: ${{ secrets.SSD_USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.PORT }}
         script: |
           pwd
