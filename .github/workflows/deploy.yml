@@ -35,6 +35,7 @@ jobs:
         script: |
           cd nodejs-production-backend
           git pull origin main
+          git reset --hard origin/main
           npm run deploy
           
 
