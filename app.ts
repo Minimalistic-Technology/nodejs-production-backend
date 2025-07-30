@@ -13,6 +13,14 @@ import crypto from 'crypto'
 import Razorpay from 'razorpay'
 import mongoose from 'mongoose'
 import messageRoutes from './Message/routes/messageRoutes';
+import teamRoutes from './Team/routes/teamRoutes';
+import templateRoutes from './Minimalistic-Technology/Template/routes/templateRoutes';
+import testimonialRoutes from './Minimalistic-Technology/Testimonial/routes/testimonialRoutes';
+import authRoutes from './Minimalistic-Learning/Auth/routes/authRoutes';
+import blogRoutes from './Minimalistic-Learning/Blog/routes/blogRoutes';
+import quoteBlogRoutes from './Minimalistic-Learning/Blog/routes/quoteBlogRoutes';
+import profileRoutes from './Minimalistic-Learning/Profile/routes/profileRoutes';
+
 
 require('dotenv').config();
 // const apiLogger = require('./controllers/apiLogger');
@@ -22,20 +30,23 @@ app.use(
     // make sure you don't have / in last
     // Do "http://localhost:3000"
     // Don't "http://localhost:3000/"
-    
-    origin: ["http://localhost:3000"],
+    origin: ["https://minimalistictechnology.com"],
     credentials: true,
   })
 );
 
 
-// body parser
-const bodyParser = require('body-parser');
-
 // cookie parser
 app.use(cookieParser());
 
 app.use('/api', messageRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/template', templateRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/quotes', quoteBlogRoutes);
+app.use('/api/profile', profileRoutes);
 
 // api requests limit
 // const limiter = rateLimit({
