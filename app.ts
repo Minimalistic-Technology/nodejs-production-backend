@@ -41,12 +41,20 @@ app.use(cookieParser());
 
 app.use('/api', messageRoutes);
 app.use('/api/team', teamRoutes);
-app.use('/api/template', templateRoutes);
-app.use('/api/testimonials', testimonialRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/blog', blogRoutes);
-app.use('/api/quotes', quoteBlogRoutes);
-app.use('/api/profile', profileRoutes);
+
+app.use(
+  "/api/ml",
+  authRoutes,
+  blogRoutes,
+  quoteBlogRoutes,
+  profileRoutes
+);
+
+app.use(
+  "/api/mt",
+  templateRoutes,
+  testimonialRoutes
+);
 
 // api requests limit
 // const limiter = rateLimit({
