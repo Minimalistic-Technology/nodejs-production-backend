@@ -25,10 +25,12 @@ jobs:
       run: npm test --if-present
 
     - name: Build Docker image
-      run: docker build -t parthdoshi480/mini-tech:latest:${{ github.sha }}
+      run: docker build -t parthdoshi480/mini-tech:latest -t parthdoshi480/mini-tech:${{ github.sha }} .
 
     - name: Push to Docker Hub
-      run: docker push parthdoshi480/mini-tech:latest
+      run: |
+        docker push parthdoshi480/mini-tech:latest
+        docker push parthdoshi480/mini-tech:${{ github.sha }}
 
     - name: Deploy to server
       uses: appleboy/ssh-action@v0.1.7
