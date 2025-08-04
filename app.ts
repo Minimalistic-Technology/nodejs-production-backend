@@ -30,7 +30,7 @@ app.use(
     // make sure you don't have / in last
     // Do "http://localhost:3000"
     // Don't "http://localhost:3000/"
-    origin: ["*"],
+    origin: ["http://minimalistictechnology.com"],
     credentials: true,
   })
 );
@@ -51,9 +51,13 @@ app.use(
 );
 
 app.use(
-  "/api/mt",
-  templateRoutes,
+  "/api/mt/testimonials",
   testimonialRoutes
+);
+
+app.use(
+  "/api/mt/templates",
+  templateRoutes
 );
 
 // api requests limit
