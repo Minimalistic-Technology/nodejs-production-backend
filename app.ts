@@ -30,7 +30,7 @@ app.use(
     // make sure you don't have / in last
     // Do "http://localhost:3000"
     // Don't "http://localhost:3000/"
-    origin: ["*"],
+    origin: ["http://localhost:3000"],
     credentials: true,
   })
 );
