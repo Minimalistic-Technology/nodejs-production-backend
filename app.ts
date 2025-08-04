@@ -20,6 +20,7 @@ import authRoutes from './Minimalistic-Learning/Auth/routes/authRoutes';
 import blogRoutes from './Minimalistic-Learning/Blog/routes/blogRoutes';
 import quoteBlogRoutes from './Minimalistic-Learning/Blog/routes/quoteBlogRoutes';
 import profileRoutes from './Minimalistic-Learning/Profile/routes/profileRoutes';
+import otpRoutes from './Minimalistic-Learning/OTP/routes/otpRoutes';
 
 
 require('dotenv').config();
@@ -45,7 +46,8 @@ app.use(
   authRoutes,
   blogRoutes,
   quoteBlogRoutes,
-  profileRoutes
+  profileRoutes,
+  otpRoutes
 );
 
 app.use(
