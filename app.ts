@@ -31,7 +31,9 @@ app.use(
     // make sure you don't have / in last
     // Do "http://localhost:3000"
     // Don't "http://localhost:3000/"
-    origin: ["https://minimalistictechnology.com", "https://minimalisticlearning.com", "http://localhost:5000"],
+    origin: ["https://minimalistictechnology.com", "https://www.minimalistictechnology.com","http://minimalistictechnology.com","http://www.minimalistictechnology.com",
+"https://minimalisticlearning.com","http://minimalisticlearning.com","https://www.minimalisticlearning.com","http://www.minimalisticlearning.com", 
+             "http://localhost:3000"],
     credentials: true,
   })
 );
