@@ -31,24 +31,40 @@ app.use(
     // make sure you don't have / in last
     // Do "http://localhost:3000"
     // Don't "http://localhost:3000/"
-    origin: ["http://minimalistictechnology.com", "http://minimalisticlearning.com", "http://localhost:3000"],
+    origin: ["https://minimalistictechnology.com", "https://minimalisticlearning.com", "http://localhost:5000"],
     credentials: true,
   })
 );
 
 app.use(cookieParser());
 
+app.use(
+  "/api/ml",
+  otpRoutes
+);
+
 app.use('/api', messageRoutes);
 app.use('/api/team', teamRoutes);
 
-app.use(
-  "/api/ml",
-  authRoutes,
-  blogRoutes,
-  quoteBlogRoutes,
-  profileRoutes,
-  otpRoutes
+app.use
+(
+  "/api/ml/auth",
+  authRoutes
 );
+
+app.use(
+  "/api/ml/blog",
+  blogRoutes
+);
+
+app.use('/api/ml', quoteBlogRoutes);
+
+app.use(
+  "/api/ml/profile",
+  profileRoutes
+);
+
+
 
 app.use(
   "/api/mt/testimonials",
