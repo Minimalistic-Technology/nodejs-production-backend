@@ -59,7 +59,10 @@ app.use(
   blogRoutes
 );
 
-app.use('/api/ml', quoteBlogRoutes);
+app.use(
+  "/api/ml/quote",
+  quoteBlogRoutes
+);
 
 app.use(
   "/api/ml/profile",
