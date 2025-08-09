@@ -40,17 +40,36 @@ app.use(
 
 app.use(cookieParser());
 
+app.use(
+  "/api/ml",
+  otpRoutes
+);
+
 app.use('/api', messageRoutes);
 app.use('/api/team', teamRoutes);
 
-app.use(
-  "/api/ml",
-  authRoutes,
-  blogRoutes,
-  quoteBlogRoutes,
-  profileRoutes,
-  otpRoutes
+app.use
+(
+  "/api/ml/auth",
+  authRoutes
 );
+
+app.use(
+  "/api/ml/blog",
+  blogRoutes
+);
+
+app.use(
+  "/api/ml/quote",
+  quoteBlogRoutes
+);
+
+app.use(
+  "/api/ml/profile",
+  profileRoutes
+);
+
+
 
 app.use(
   "/api/mt/testimonials",
