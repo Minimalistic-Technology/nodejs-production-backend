@@ -21,6 +21,21 @@ import blogRoutes from './Minimalistic-Learning/Blog/routes/blogRoutes';
 import quoteBlogRoutes from './Minimalistic-Learning/Blog/routes/quoteBlogRoutes';
 import profileRoutes from './Minimalistic-Learning/Profile/routes/profileRoutes';
 import otpRoutes from './Minimalistic-Learning/OTP/routes/otpRoutes';
+import authAccessRoutes from './BookStore/routes/authAccessRoutes';
+import bookOrderRoutes from './BookStore/routes/bookOrderRoutes';
+import bulkuserRoutes from './BookStore/routes/bulkuserRoutes';
+import BookStorecategoryRoutes from './BookStore/routes/BookStorecategoryRoutes';
+import homepageRoutes from './BookStore/routes/homepageRoutes';
+import newsubRoutes from './BookStore/routes/newsubRoutes';
+import productRoutes from './BookStore/routes/productroutes';
+import siteSettingsRoutes from './BookStore/routes/siteSettingsRoutes';
+import subscriberRoutes from './BookStore/routes/subscriberRoutes';
+import propertyRoutes from './Siddhi-E-State/Property/routes/propertyRoutes';
+import redevelopmentRoutes from "./Siddhi-E-State/Property/routes/redevelopmentRoutes";
+import commercialRoutes from "./Siddhi-E-State/Property/routes/commercialRoutes";
+import brokerRoutes from "./Siddhi-E-State/Property/routes/brokerRoutes";
+import propertyMessageRoutes from "./Siddhi-E-State/Property/routes/propertyMessageRoutes";
+import propertyRequirementRoutes from "./Siddhi-E-State/Property/routes/propertyRequirementRoutes";
 
 
 require('dotenv').config();
@@ -80,6 +95,25 @@ app.use(
   "/api/mt/templates",
   templateRoutes
 );
+
+app.use('/api/bookstore', authAccessRoutes);
+app.use('/api/bookstore', bookOrderRoutes);
+app.use('/api/bookstore', BookStorecategoryRoutes);
+app.use('/api/bookstore', bulkuserRoutes);
+app.use('/api/bookstore', homepageRoutes);
+app.use('/api/bookstore', newsubRoutes);
+app.use('/api/bookstore', productRoutes);
+app.use('/api/bookstore', siteSettingsRoutes);
+app.use('/api/bookstore', subscriberRoutes);
+
+
+app.use('/api/property', propertyRoutes);
+app.use('/api/property', redevelopmentRoutes);
+app.use('/api/property', commercialRoutes);
+app.use('/api/property', brokerRoutes);
+app.use('/api/property', propertyRequirementRoutes);
+app.use('/api/property', propertyMessageRoutes);
+
 
 // api requests limit
 // const limiter = rateLimit({
