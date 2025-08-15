@@ -1,9 +1,8 @@
-
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBook extends Document {
   bookName: string;
-  categoryPath: string;
+  categoryPath: string; 
   title: string;
   tags: string[];
   seoTitle?: string;
@@ -21,11 +20,13 @@ export interface IBook extends Document {
   discountOld?: number;
   effectiveDiscount?: number;
   discountedPrice?: number;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
 }
 
 export interface IBookCategory extends Document {
   name: string;
-  path: string; 
+  path: string;
   children: mongoose.Types.ObjectId[];
   books: mongoose.Types.ObjectId[];
   tags: string[];
@@ -71,10 +72,12 @@ const BookSchema: Schema = new Schema(
     imageUrl: { type: String },
     quantityNew: { type: Number, default: 0 },
     quantityOld: { type: Number, default: 0 },
-    discountNew: { type: Number, default: 0 },
-    discountOld: { type: Number, default: 0 }, 
+    discountNew: { type: Number, default: 0 }, 
+    discountOld: { type: Number, default: 0 },
     effectiveDiscount: { type: Number, default: 0 },
     discountedPrice: { type: Number },
+    isBestSeller: { type: Boolean, default: false },
+    isNewArrival: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

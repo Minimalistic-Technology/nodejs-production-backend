@@ -1,6 +1,6 @@
 // File: orderroutes.ts
 import express from 'express';
-import { createOrder, getAllOrders, updateOrderStatus, deleteOrder, getCancelReasons, cancelOrder } from '../controllers/ordercontroller';
+import { createOrder, getAllOrders, updateOrderStatus, deleteOrder, getCancelReasons, cancelOrder } from '../controllers/orderController';
 
 const router = express.Router();
 

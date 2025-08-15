@@ -27,7 +27,7 @@ import bulkuserRoutes from './BookStore/routes/bulkuserRoutes';
 import BookStorecategoryRoutes from './BookStore/routes/BookStorecategoryRoutes';
 import homepageRoutes from './BookStore/routes/homepageRoutes';
 import newsubRoutes from './BookStore/routes/newsubRoutes';
-import productRoutes from './BookStore/routes/productroutes';
+import productRoutes from './BookStore/routes/productRoutes';
 import siteSettingsRoutes from './BookStore/routes/siteSettingsRoutes';
 import subscriberRoutes from './BookStore/routes/subscriberRoutes';
 import propertyRoutes from './Siddhi-E-State/Property/routes/propertyRoutes';

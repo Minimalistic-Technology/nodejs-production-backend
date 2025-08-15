@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Order } from '../../BookStore/models/order';
-import { BookModel } from '../../BookStore/models/homepage';
+import { Order } from '../models/order';
+import { BookModel } from '../models/homepage';
 
 export const getCancelReasons = (_req: Request, res: Response) => {
   const reasons: string[] = [

@@ -7,6 +7,7 @@ import {
 } from "../models/homepage";
 import { Types } from "mongoose";
 
+
 interface IPopulatedBook extends Omit<IBook, "_id"> {
   _id: Types.ObjectId;
   discountNew: number;
@@ -26,41 +27,45 @@ interface IPopulatedCategory
 }
 
 class BookController {
+
   private static async getCategoryDiscount(book: IPopulatedBook): Promise<number> {
     const pathParts = book.categoryPath.split('/');
     const level = pathParts.length - 1;
 
     console.log(`[getCategoryDiscount] Processing book: ${book.title}, categoryPath: ${book.categoryPath}, level: ${level}`);
 
+  
     if (level >= 2) {
       const subCategoryPath = pathParts.slice(0, 2).join('/');
       const subCategory = await BookCategoryModel.findOne({ path: subCategoryPath });
       if (subCategory && subCategory.discount > 0) {
-        console.log(`[getCategoryDiscount] Applying Subcategory discount for ${subCategoryPath}: ${subCategory.discount}%`);
+        console.log(`[getCategoryDiscount] Applying Subcategory (Level 2) discount for ${subCategoryPath}: ${subCategory.discount}%`);
         return subCategory.discount;
       }
-      console.log(`[getCategoryDiscount] No Subcategory discount for ${subCategoryPath}`);
+      console.log(`[getCategoryDiscount] No Subcategory (Level 2) discount for ${subCategoryPath}`);
     }
 
+  
     if (level >= 1) {
       const categoryPath = pathParts[0];
       const category = await BookCategoryModel.findOne({ path: categoryPath }).exec();
       if (category && category.discount > 0) {
-        console.log(`[getCategoryDiscount] Applying Category discount for ${categoryPath}: ${category.discount}%`);
+        console.log(`[getCategoryDiscount] Applying Category (Level 1) discount for ${categoryPath}: ${category.discount}%`);
         return category.discount;
       }
-      console.log(`[getCategoryDiscount] No Category discount for ${categoryPath}`);
+      console.log(`[getCategoryDiscount] No Category (Level 1) discount for ${categoryPath}`);
     }
 
+
     const bookDiscount = book.condition === "new" ? book.discountNew : book.discountOld;
-    console.log(`[getCategoryDiscount] Applying Book discount for ${book.title}: ${bookDiscount}%`);
+    console.log(`[getCategoryDiscount] Applying Book-level discount for ${book.title}: ${bookDiscount}%`);
     return bookDiscount;
   }
 
   static async getAllCategories(req: Request, res: Response): Promise<void> {
     try {
       const categories = await BookCategoryModel.find({
-        path: { $regex: "^[^/]+$" }, 
+        path: { $regex: "^[^/]+$" },
       })
         .populate({
           path: "books",
@@ -76,7 +81,32 @@ class BookController {
               model: "BookCategory",
               populate: [
                 { path: "books", model: "Book" },
-                { path: "children", model: "BookCategory" },
+                {
+                  path: "children",
+                  model: "BookCategory",
+                  populate: [
+                    { path: "books", model: "Book" },
+                    {
+                      path: "children",
+                      model: "BookCategory",
+                      populate: [
+                        { path: "books", model: "Book" },
+                        {
+                          path: "children",
+                          model: "BookCategory",
+                          populate: [
+                            { path: "books", model: "Book" },
+                            {
+                              path: "children",
+                              model: "BookCategory",
+                              populate: { path: "books", model: "Book" },
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
               ],
             },
           ],
@@ -120,7 +150,32 @@ class BookController {
               model: "BookCategory",
               populate: [
                 { path: "books", model: "Book" },
-                { path: "children", model: "BookCategory" },
+                {
+                  path: "children",
+                  model: "BookCategory",
+                  populate: [
+                    { path: "books", model: "Book" },
+                    {
+                      path: "children",
+                      model: "BookCategory",
+                      populate: [
+                        { path: "books", model: "Book" },
+                        {
+                          path: "children",
+                          model: "BookCategory",
+                          populate: [
+                            { path: "books", model: "Book" },
+                            {
+                              path: "children",
+                              model: "BookCategory",
+                              populate: { path: "books", model: "Book" },
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
               ],
             },
           ],
@@ -176,6 +231,7 @@ class BookController {
         `[getBooksByCategoryPath] Raw path: ${path}, Normalized path: ${normalizedPath}`
       );
 
+    
       const books = await BookModel.find({
         categoryPath: { $regex: `^${normalizedPath}(/|$)` }
       }).lean() as IPopulatedBook[];
@@ -213,6 +269,93 @@ class BookController {
     }
   }
 
+  static async getAllBooks(req: Request, res: Response): Promise<void> {
+    try {
+      const books = await BookModel.find({}).lean() as IPopulatedBook[];
+
+      if (!books || books.length === 0) {
+        res
+          .status(404)
+          .json({ error: "No books found" });
+        return;
+      }
+
+      const booksWithDiscount = await Promise.all(
+        books.map(async (book: IPopulatedBook) => {
+          const effectiveDiscount = await BookController.getCategoryDiscount(book);
+          const discountedPrice = book.price
+            ? book.price * (1 - effectiveDiscount / 100)
+            : book.price;
+          return { ...book, effectiveDiscount, discountedPrice };
+        })
+      );
+
+      res.status(200).json(booksWithDiscount);
+    } catch (err: any) {
+      res
+        .status(500)
+        .json({ error: "Failed to fetch all books", details: err.message });
+    }
+  }
+
+  static async getBestSellers(req: Request, res: Response): Promise<void> {
+    try {
+      const books = await BookModel.find({ isBestSeller: true }).lean() as IPopulatedBook[];
+
+      if (!books || books.length === 0) {
+        res
+          .status(404)
+          .json({ error: "No best sellers found" });
+        return;
+      }
+
+      const booksWithDiscount = await Promise.all(
+        books.map(async (book: IPopulatedBook) => {
+          const effectiveDiscount = await BookController.getCategoryDiscount(book);
+          const discountedPrice = book.price
+            ? book.price * (1 - effectiveDiscount / 100)
+            : book.price;
+          return { ...book, effectiveDiscount, discountedPrice };
+        })
+      );
+
+      res.status(200).json(booksWithDiscount);
+    } catch (err: any) {
+      res
+        .status(500)
+        .json({ error: "Failed to fetch best sellers", details: err.message });
+    }
+  }
+
+  static async getNewArrivals(req: Request, res: Response): Promise<void> {
+    try {
+      const books = await BookModel.find({ isNewArrival: true }).lean() as IPopulatedBook[];
+
+      if (!books || books.length === 0) {
+        res
+          .status(404)
+          .json({ error: "No new arrivals found" });
+        return;
+      }
+
+      const booksWithDiscount = await Promise.all(
+        books.map(async (book: IPopulatedBook) => {
+          const effectiveDiscount = await BookController.getCategoryDiscount(book);
+          const discountedPrice = book.price
+            ? book.price * (1 - effectiveDiscount / 100)
+            : book.price;
+          return { ...book, effectiveDiscount, discountedPrice };
+        })
+      );
+
+      res.status(200).json(booksWithDiscount);
+    } catch (err: any) {
+      res
+        .status(500)
+        .json({ error: "Failed to fetch new arrivals", details: err.message });
+    }
+  }
+
   static async createCategory(req: Request, res: Response): Promise<void> {
     try {
       const { name, tags, seoTitle, seoDescription, discount, parentPath } =
@@ -241,7 +384,7 @@ class BookController {
         return;
       }
 
-
+    
       const level = path.split('/').length - 1;
       const validatedDiscount = (level <= 2 && discount !== undefined) ? discount : 0;
 
@@ -316,7 +459,7 @@ class BookController {
               .json({ error: `Category path '${newPath}' already exists` });
             return;
           }
-    
+        
           const descendants = await BookCategoryModel.find({
             path: { $regex: `^${category.path}/` },
           });
@@ -366,7 +509,7 @@ class BookController {
         return;
       }
 
-
+  
       await BookCategoryModel.deleteMany({
         path: { $regex: `^${category.path}/` },
       });
@@ -375,7 +518,7 @@ class BookController {
       });
       await BookCategoryModel.deleteOne({ path });
 
-  
+    
       const parentPath = category.path.split("/").slice(0, -1).join("/");
       if (parentPath) {
         const parent = await BookCategoryModel.findOne({ path: parentPath });
@@ -419,6 +562,8 @@ class BookController {
         discountNew,
         discountOld,
         categoryPath,
+        isBestSeller,
+        isNewArrival,
       } = req.body as {
         title: string;
         tags?: string | string[];
@@ -436,6 +581,8 @@ class BookController {
         discountNew?: number;
         discountOld?: number;
         categoryPath?: string;
+        isBestSeller?: boolean;
+        isNewArrival?: boolean;
       };
 
       if (!title || !title.trim()) {
@@ -447,6 +594,7 @@ class BookController {
         .replace(/\s+/g, "-")
         .toLowerCase();
 
+      
       if (categoryPath && !categoryPath.startsWith(normalizedPath)) {
         res.status(400).json({
           error: `Category path in body (${categoryPath}) must start with request path (${normalizedPath})`,
@@ -491,13 +639,15 @@ class BookController {
         quantityOld: quantityOld ?? 0,
         discountNew: discountNew ?? 0,
         discountOld: discountOld ?? 0,
+        isBestSeller: isBestSeller ?? false,
+        isNewArrival: isNewArrival ?? false,
       });
 
       await book.save();
       category.books.push(book._id);
       await category.save();
 
-  
+      
       const effectiveDiscount = await BookController.getCategoryDiscount(book);
       const discountedPrice = book.price
         ? book.price * (1 - effectiveDiscount / 100)
@@ -558,8 +708,10 @@ class BookController {
         discountNew,
         discountOld,
         categoryPath,
+        isBestSeller,
+        isNewArrival,
       } = req.body as {
-        title: string;
+        title?: string;
         tags?: string | string[];
         seoTitle?: string;
         seoDescription?: string;
@@ -575,12 +727,9 @@ class BookController {
         discountNew?: number;
         discountOld?: number;
         categoryPath?: string;
+        isBestSeller?: boolean;
+        isNewArrival?: boolean;
       };
-
-      if (!title || !title.trim()) {
-        res.status(400).json({ error: "Title is required" });
-        return;
-      }
 
       const normalizedPath = decodeURIComponent(path || "")
         .replace(/\s+/g, "-")
@@ -620,40 +769,50 @@ class BookController {
         return;
       }
 
-      Object.assign(book, {
-        bookName: title.trim(),
-        categoryPath: categoryPath || normalizedPath,
-        title: title.trim(),
-        tags:
-          typeof tags === "string"
-            ? tags
-                .split(",")
-                .map((tag: string) =>
-                  tag.trim().replace(/\s+/g, "-").toLowerCase()
-                )
-            : (tags || []).map((tag: string) =>
+
+      if (title && title.trim()) {
+        book.bookName = title.trim();
+        book.title = title.trim();
+      }
+      book.tags =
+        typeof tags === "string"
+          ? tags
+              .split(",")
+              .map((tag: string) =>
                 tag.trim().replace(/\s+/g, "-").toLowerCase()
-              ),
-        seoTitle,
-        seoDescription,
-        price,
-        description,
-        estimatedDelivery,
-        condition,
-        author,
-        publisher,
-        imageUrl,
-        quantityNew: quantityNew ?? 0,
-        quantityOld: quantityOld ?? 0,
-        discountNew: discountNew ?? 0,
-        discountOld: discountOld ?? 0,
-      });
+              )
+          : (tags || book.tags).map((tag: string) =>
+              tag.trim().replace(/\s+/g, "-").toLowerCase()
+            );
+      book.seoTitle = seoTitle ?? book.seoTitle;
+      book.seoDescription = seoDescription ?? book.seoDescription;
+      book.price = price ?? book.price;
+      book.description = description ?? book.description;
+      book.estimatedDelivery = estimatedDelivery ?? book.estimatedDelivery;
+      book.condition = condition ?? book.condition;
+      book.author = author ?? book.author;
+      book.publisher = publisher ?? book.publisher;
+      book.imageUrl = imageUrl ?? book.imageUrl;
+      book.quantityNew = quantityNew ?? book.quantityNew;
+      book.quantityOld = quantityOld ?? book.quantityOld;
+      book.discountNew = discountNew ?? book.discountNew;
+      book.discountOld = discountOld ?? book.discountOld;
+      book.categoryPath = categoryPath || normalizedPath;
+      book.isBestSeller = isBestSeller ?? book.isBestSeller;
+      book.isNewArrival = isNewArrival ?? book.isNewArrival;
 
       await book.save();
       newCategory.books.push(book._id);
       await newCategory.save();
+
+  
+      const effectiveDiscount = await BookController.getCategoryDiscount(book);
+      const discountedPrice = book.price
+        ? book.price * (1 - effectiveDiscount / 100)
+        : book.price;
+
       console.log(`Updated book in category: ${normalizedPath}`);
-      res.status(200).json(book);
+      res.status(200).json({ ...book.toObject(), effectiveDiscount, discountedPrice });
     } catch (err: any) {
       console.error("Error updating book:", err);
       res
