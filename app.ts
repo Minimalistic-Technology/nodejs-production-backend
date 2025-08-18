@@ -22,6 +22,7 @@ import quoteBlogRoutes from './Minimalistic-Learning/Blog/routes/quoteBlogRoutes
 import profileRoutes from './Minimalistic-Learning/Profile/routes/profileRoutes';
 import otpRoutes from './Minimalistic-Learning/OTP/routes/otpRoutes';
 import authAccessRoutes from './BookStore/routes/authAccessRoutes';
+import bookstoreAuthRoutes from './BookStore/routes/bookstoreAuthRoutes';
 import bookOrderRoutes from './BookStore/routes/bookOrderRoutes';
 import bulkuserRoutes from './BookStore/routes/bulkuserRoutes';
 import BookStorecategoryRoutes from './BookStore/routes/BookStorecategoryRoutes';
@@ -97,6 +98,7 @@ app.use(
 );
 
 app.use('/api/bookstore', authAccessRoutes);
+app.use('/api/bookstore', bookstoreAuthRoutes);
 app.use('/api/bookstore', bookOrderRoutes);
 app.use('/api/bookstore', BookStorecategoryRoutes);
 app.use('/api/bookstore', bulkuserRoutes);
