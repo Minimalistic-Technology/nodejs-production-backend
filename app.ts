@@ -37,6 +37,7 @@ import commercialRoutes from "./Siddhi-E-State/Property/routes/commercialRoutes"
 import brokerRoutes from "./Siddhi-E-State/Property/routes/brokerRoutes";
 import propertyMessageRoutes from "./Siddhi-E-State/Property/routes/propertyMessageRoutes";
 import propertyRequirementRoutes from "./Siddhi-E-State/Property/routes/propertyRequirementRoutes";
+import EmailRoutes from './E-mail/routes/EmailRoutes';
 
 
 require('dotenv').config();
@@ -115,6 +116,8 @@ app.use('/api/property', commercialRoutes);
 app.use('/api/property', brokerRoutes);
 app.use('/api/property', propertyRequirementRoutes);
 app.use('/api/property', propertyMessageRoutes);
+
+app.use('/api/email', EmailRoutes);
 
 
 // api requests limit
