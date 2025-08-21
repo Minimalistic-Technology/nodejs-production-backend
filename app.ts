@@ -22,6 +22,7 @@ import quoteBlogRoutes from './Minimalistic-Learning/Blog/routes/quoteBlogRoutes
 import profileRoutes from './Minimalistic-Learning/Profile/routes/profileRoutes';
 import otpRoutes from './Minimalistic-Learning/OTP/routes/otpRoutes';
 import authAccessRoutes from './BookStore/routes/authAccessRoutes';
+import bookstoreAuthRoutes from './BookStore/routes/bookstoreAuthRoutes';
 import bookOrderRoutes from './BookStore/routes/bookOrderRoutes';
 import bulkuserRoutes from './BookStore/routes/bulkuserRoutes';
 import BookStorecategoryRoutes from './BookStore/routes/BookStorecategoryRoutes';
@@ -36,6 +37,7 @@ import commercialRoutes from "./Siddhi-E-State/Property/routes/commercialRoutes"
 import brokerRoutes from "./Siddhi-E-State/Property/routes/brokerRoutes";
 import propertyMessageRoutes from "./Siddhi-E-State/Property/routes/propertyMessageRoutes";
 import propertyRequirementRoutes from "./Siddhi-E-State/Property/routes/propertyRequirementRoutes";
+import EmailRoutes from './E-mail/routes/EmailRoutes';
 
 
 require('dotenv').config();
@@ -48,7 +50,7 @@ app.use(
     // Don't "http://localhost:3000/"
     origin: ["https://minimalistictechnology.com", "https://www.minimalistictechnology.com","http://minimalistictechnology.com","http://www.minimalistictechnology.com",
 "https://minimalisticlearning.com","http://minimalisticlearning.com","https://www.minimalisticlearning.com","http://www.minimalisticlearning.com", 
-             "http://localhost:3000", "https://books-store-inky-one.vercel.app"],
+             "http://localhost:3000", "https://books-store-inky-one.vercel.app", "https://sidhhi-test.vercel.app"],
     credentials: true,
   })
 );
@@ -97,6 +99,7 @@ app.use(
 );
 
 app.use('/api/bookstore', authAccessRoutes);
+app.use('/api/bookstore', bookstoreAuthRoutes);
 app.use('/api/bookstore', bookOrderRoutes);
 app.use('/api/bookstore', BookStorecategoryRoutes);
 app.use('/api/bookstore', bulkuserRoutes);
@@ -113,6 +116,8 @@ app.use('/api/property', commercialRoutes);
 app.use('/api/property', brokerRoutes);
 app.use('/api/property', propertyRequirementRoutes);
 app.use('/api/property', propertyMessageRoutes);
+
+app.use('/api/email', EmailRoutes);
 
 
 // api requests limit
