@@ -31,8 +31,7 @@ const emailLogSchema = new mongoose.Schema<EmailLogDocument>({
   error: { type: String },
 });
 
-const EmailLog: Model<EmailLogDocument> = mongoose.model<EmailLogDocument>("EmailLog", emailLogSchema);
-
+const EmailLog: Model<EmailLogDocument> = mongoose.models.EmailLog || mongoose.model<EmailLogDocument>("EmailLog", emailLogSchema);
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
