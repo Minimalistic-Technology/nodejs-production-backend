@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Product } from '../models/product';
+import { BookModel } from '../models/homepage';
 
 
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
@@ -74,36 +75,59 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
 };
 
 
-export const bulkCreateProduct = async (req: Request, res: Response): Promise<void> => {
+export const bulkCreateProduct = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { products } = req.body;
 
     if (!Array.isArray(products) || products.length === 0) {
-      res.status(400).json({ message: 'Products array is required and cannot be empty.' });
+      res
+        .status(400)
+        .json({ message: "Products array is required and cannot be empty." });
+      return;
+    }
+console.log(req.body);
+    // const validProducts = products.map(
+    //   (p: any) =>
+    //     ({
+    //       title: p.title,
+    //       tags: p.tags,
+    //       seoTitle: p.seoTitle,
+    //       seoDescription: p.seoDescription,
+    //       price: p.price,
+    //       description: p.description,
+    //       estimatedDelivery: p.estimatedDelivery,
+    //       condition: p.condition,
+    //       author: p.author,
+    //       publisher: p.publisher,
+    //       imageUrl: p.imageUrl,
+    //       quantityNew: p.quantityNew,
+    //       quantityOld: p.quantityOld,
+    //       discountNew: p.discountNew,
+    //       discountOld: p.discountOld,
+    //     } = req.body)
+
+    // );
+    // console.log(validProducts)
+
+    if (products.length === 0) {
+      res.status(400).json({ message: "No valid products provided." });
       return;
     }
 
-    const validProducts = products.map((p: any) => ({
-      productName: p.name || p.productName,
-      price: parseFloat(p.price) || 0,
-      inventory: parseInt(p.inventory, 10) || 0,
-      description: p.description || '',
-      createdAt: new Date().toISOString(),
-    })).filter(p => p.productName && p.price >= 0 && p.inventory >= 0);
-
-    if (validProducts.length === 0) {
-      res.status(400).json({ message: 'No valid products provided.' });
-      return;
-    }
-
-    const savedProducts = await Product.insertMany(validProducts);
+    const savedProducts = await BookModel.insertMany(products);
+    // const savedProducts = await Product.insertMany(products);
 
     res.status(201).json({
       success: true,
-      message: 'Products added successfully',
+      message: "Products added successfully",
       products: savedProducts,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error', error: err });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err });
   }
 };
