@@ -6,12 +6,18 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const SECRET_KEY = process.env.JWT_SECRET as string; 
+const SECRET_KEY = process.env.JWT_SECRET as string;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL as string;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD as string;
+
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password, role } = req.body;
     const existing = await AuthAccessModel.findOne({ email });
-    if (existing)  res.status(400).json({ message: "Email already exists" });
+    if (existing) {
+      res.status(400).json({ message: "Email already exists" });
+      return;
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new AuthAccessModel({ username, email, password: hashedPassword, role });
@@ -33,7 +39,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid)  res.status(401).json({ message: "Invalid credentials" });
+    if (!valid) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -47,6 +56,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const adminLogin = (req: Request, res: Response): void => {
+  const { email, password } = req.body;
+
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    const token = jwt.sign({ role: "Admin" }, SECRET_KEY, { expiresIn: "1d" });
+    res.json({ message: "Admin login successful", token });
+  } else {
+    res.status(401).json({ message: "Invalid admin credentials" });
+  }
+};
 
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {

@@ -7,7 +7,7 @@ dotenv.config();
 const SECRET_KEY = process.env.JWT_SECRET as string;
 
 interface JwtPayload {
-  id: string;
+  id?: string;
   role: string;
 }
 
