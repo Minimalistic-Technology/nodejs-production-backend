@@ -61,7 +61,7 @@ export const adminLogin = (req: Request, res: Response): void => {
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
     const token = jwt.sign({ role: "Admin" }, SECRET_KEY, { expiresIn: "1d" });
-    res.json({ message: "Admin login successful", token });
+    res.json({ message: "Admin login successful", token, role: "Admin" });
   } else {
     res.status(401).json({ message: "Invalid admin credentials" });
   }
