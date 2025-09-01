@@ -151,7 +151,7 @@ app.use(limiter);
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     success: true,
-    message: "GET API is working fine by Parth Doshi",
+    message: "GET API is working fine. by PD",
   });
 });
 
