@@ -7,8 +7,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const SECRET_KEY = process.env.JWT_SECRET as string;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL as string;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD as string;
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -50,22 +48,52 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       { expiresIn: "1d" }
     );
 
-    res.json({ message: "Login successful", token });
+     res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: "Login successful" });
   } catch (err) {
     res.status(500).json({ error: "Login failed" });
   }
 };
 
-export const adminLogin = (req: Request, res: Response): void => {
-  const { email, password } = req.body;
+export const adminLogin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
 
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    const token = jwt.sign({ role: "Admin" }, SECRET_KEY, { expiresIn: "1d" });
-    res.json({ message: "Admin login successful", token, role: "Admin" });
-  } else {
-    res.status(401).json({ message: "Invalid admin credentials" });
+    const admin = await AuthAccessModel.findOne({ email, role: "Admin" });
+    if (!admin) {
+      res.status(404).json({ message: "Admin not found" });
+      return;
+    }
+
+    const valid = await bcrypt.compare(password, admin.password);
+    if (!valid) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    const token = jwt.sign({ id: admin._id, role: admin.role }, SECRET_KEY, {
+      expiresIn: "1d",
+    });
+
+     res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: "Admin login successful", role: admin.role });
+  } catch (err) {
+    res.status(500).json({ error: "Admin login failed" });
   }
 };
+
 
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
