@@ -37,6 +37,34 @@ export default class BookRequestController {
     }
   }
 
+static async getMyBookRequests(req: Request, res: Response): Promise<void> {
+  try {
+    const userEmail = (req as any).user?.email;
+
+    if (!userEmail) {
+      res.status(401).json({ error: "Unauthorized. Please login first." });
+      return;
+    }
+
+    const requests = await BookRequestModel.find({ email: userEmail }).sort({ createdAt: -1 });
+
+    if (!requests.length) {
+      res.status(404).json({ error: "No book requests found for this user" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      count: requests.length,
+      requests,
+    });
+  } catch (err: any) {
+    console.error("Error fetching user book requests:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
+
+
   static async getBookRequests(req: Request, res: Response): Promise<void> {
     try {
       const requests = await BookRequestModel.find().sort({ createdAt: -1 });

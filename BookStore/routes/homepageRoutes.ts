@@ -21,6 +21,8 @@ router.delete('/book-categories/:path*', isAuthenticated, adminOnly, BookControl
 router.post('/book-categories/:path*/tags', isAuthenticated, adminOnly, BookController.createTag);
 router.delete('/book-categories/:path*/tags/:tagName', isAuthenticated, adminOnly, BookController.deleteTag);
 
+router.get('/books/search', BookController.searchBooks);
+
 router.get('/books/:bookId([0-9a-fA-F]{24})', BookController.getBookById);
 router.delete('/books/:bookId([0-9a-fA-F]{24})', isAuthenticated, adminOnly, BookController.deleteBook);
 router.put('/books/:path*/:bookId([0-9a-fA-F]{24})', isAuthenticated, adminOnly, BookController.updateBook);
@@ -43,6 +45,7 @@ router.put('/reviews/:id', isAuthenticated, adminOnly, updateReview);
 router.delete('/reviews/:id', isAuthenticated, adminOnly, deleteReview);
 
 router.post('/book-requests', isAuthenticated, BookRequestController.createBookRequest);
+router.get("/my-book-requests", isAuthenticated, BookRequestController.getMyBookRequests);
 router.get('/book-requests', BookRequestController.getBookRequests);
 
 export default router;

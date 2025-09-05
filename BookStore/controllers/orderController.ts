@@ -286,3 +286,44 @@ export const refundOrder = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
+
+export const getMyOrders = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userEmail = (req as any).user?.email;
+
+    if (!userEmail) {
+      res.status(401).json({ message: "Unauthorized. Please login first." });
+      return;
+    }
+
+    const orders = await Order.find({ email: userEmail }).populate("bookId", "title imageUrl");
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders: orders.map(order => ({
+        _id: order._id,
+        customerName: order.customerName,
+        email: order.email,
+        mobileNumber: order.mobileNumber,
+        address: order.address,
+        paymentType: order.paymentType,
+        quantity: order.quantity,
+        price: order.price,
+        status: order.status,
+        condition: order.condition,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        date: order.date,
+        bookId: order.bookId,
+        title: order.bookId ? (order.bookId as any).title : "Unknown Book",
+        imageUrl: order.bookId ? (order.bookId as any).imageUrl : null,
+        cancelReason: order.cancelReason || null,
+      })),
+    });
+  } catch (err) {
+    console.error("Error fetching user orders:", err);
+    res.status(500).json({ message: "Server error", error: err instanceof Error ? err.message : "Unknown error" });
+  }
+};
+
