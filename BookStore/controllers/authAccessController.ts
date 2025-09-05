@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { AuthAccessModel } from "../models/authAccess";
 import bcrypt from "bcrypt";
@@ -94,10 +95,50 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const user = await AuthAccessModel.findOne({ email });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const resetToken = user.getResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${req.get("origin")}/reset-password/${resetToken}`;
+
+    const message = `You requested a password reset.\n\nPlease click the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request this, ignore this email.`;
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      service: process.env.SMTP_SERVICE,
+      auth: {
+        user: process.env.SMTP_MAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.SMTP_MAIL,
+      to: user.email,
+      subject: "Password Reset Request",
+      text: message,
+    });
+
+    res.status(200).json({ success: true, message: "Password reset email sent" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send reset email" });
+  }
+};
+
 
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const users = await AuthAccessModel.find({}, { password: 0 }); // exclude password
+    const users = await AuthAccessModel.find({}, { password: 0 });
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve users" });
