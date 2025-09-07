@@ -11,7 +11,7 @@ const SECRET_KEY = process.env.JWT_SECRET as string;
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password } = req.body;
     const existing = await AuthAccessModel.findOne({ email });
     if (existing) {
       res.status(400).json({ message: "Email already exists" });
@@ -19,7 +19,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new AuthAccessModel({ username, email, password: hashedPassword, role });
+    const user = new AuthAccessModel({ username, email, password: hashedPassword, role: "User" });
     await user.save();
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {
@@ -30,8 +30,8 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role } = req.body;
-    const user = await AuthAccessModel.findOne({ email, role });
+    const { email, password } = req.body;
+    const user = await AuthAccessModel.findOne({ email, role: "User" });
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -142,6 +142,28 @@ export const getAllUsers = async (_req: Request, res: Response): Promise<void> =
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve users" });
+  }
+};
+
+export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized. Please log in again." });
+      return;
+    }
+
+    const user = await AuthAccessModel.findById(userId).select("-password");
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error: any) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
   }
 };
 

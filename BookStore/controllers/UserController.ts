@@ -153,25 +153,3 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       res.status(500).json({ error: 'Server error during login' });
     }
   };
-
-export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const userId = (req as any).user?.id;
-
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized. Please log in again." });
-      return;
-    }
-
-    const user = await User.findById(userId).select("-password");
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-
-    res.status(200).json({ success: true, user });
-  } catch (error: any) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
-  }
-};
