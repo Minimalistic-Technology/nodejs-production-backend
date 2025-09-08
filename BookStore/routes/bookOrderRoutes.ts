@@ -10,7 +10,7 @@ router.get('/my-orders', isAuthenticated, getMyOrders);
 router.get('/orders', isAuthenticated, adminOnly, getAllOrders);
 router.put('/orders/:id', isAuthenticated, adminOnly, updateOrderStatus);
 router.delete('/orders/:id', isAuthenticated, adminOnly, deleteOrder);
-router.get('/cancel-reasons', isAuthenticated, adminOnly, getCancelReasons);
+router.get('/cancel-reasons', isAuthenticated, getCancelReasons);
 router.post('/orders/:id/cancel', isAuthenticated, cancelOrder);
 
 export default router;
