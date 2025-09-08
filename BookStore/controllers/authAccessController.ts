@@ -135,6 +135,46 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
   }
 };
 
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, email, password } = req.body;
+
+    if (!token || !email || !password) {
+      res.status(400).json({ message: "Token, email, and password are required" });
+      return;
+    }
+
+    const crypto = await import("crypto");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await AuthAccessModel.findOne({
+      email,
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      res.status(400).json({ message: "Invalid or expired reset token" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+};
+
 
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
