@@ -11,7 +11,7 @@ const SECRET_KEY = process.env.JWT_SECRET as string;
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone } = req.body;
     const existing = await AuthAccessModel.findOne({ email });
     if (existing) {
       res.status(400).json({ message: "Email already exists" });
@@ -19,14 +19,21 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new AuthAccessModel({ username, email, password: hashedPassword, role: "User" });
+    const user = new AuthAccessModel({
+      username,
+      email,
+      password: hashedPassword,
+      role: "User",
+    });
     await user.save();
     res.status(201).json({ message: "User registered successfully", user });
-  } catch (err) {
-    res.status(500).json({ error: "Signup failed" });
+  } catch (err: any) {
+    console.error("Signup error:", err); 
+    res.status(500).json({
+      error: err.message || "Signup failed", 
+    });
   }
 };
-
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -44,12 +51,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
+      {
+        id: user._id,
+        email: user.email,
+        phone: user.phone,
+        name: user.username,
+        role: user.role,
+      },
       SECRET_KEY,
       { expiresIn: "1d" }
     );
 
-     res.cookie("token", token, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -62,7 +75,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const adminLogin = async (req: Request, res: Response): Promise<void> => {
+export const adminLogin = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -82,7 +98,7 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       expiresIn: "1d",
     });
 
-     res.cookie("token", token, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -95,7 +111,10 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+export const forgotPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email } = req.body;
     const user = await AuthAccessModel.findOne({ email });
@@ -108,9 +127,9 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.get("origin")}/reset-password/${resetToken}`;
+    const passwordResetUrl = `${req.get("origin")}/reset-password/${resetToken}`;
 
-    const message = `You requested a password reset.\n\nPlease click the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request this, ignore this email.`;
+    const message = `You requested a password reset.\n\nPlease click the link below to reset your password:\n\n${passwordResetUrl}\n\nIf you did not request this, ignore this email.`;
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -129,29 +148,32 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
       text: message,
     });
 
-    res.status(200).json({ success: true, message: "Password reset email sent" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset email sent" });
   } catch (err) {
     res.status(500).json({ error: "Failed to send reset email" });
   }
 };
 
-export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    const { token, email, password } = req.body;
+    const { token, password } = req.body;
 
-    if (!token || !email || !password) {
-      res.status(400).json({ message: "Token, email, and password are required" });
+    if (!token || !password) {
+      res
+        .status(400)
+        .json({ message: "Token, email, and password are required" });
       return;
     }
 
     const crypto = await import("crypto");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await AuthAccessModel.findOne({
-      email,
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
@@ -169,14 +191,18 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
 
     await user.save();
 
-    res.status(200).json({ success: true, message: "Password reset successful" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successful" });
   } catch (err) {
     res.status(500).json({ error: "Failed to reset password" });
   }
 };
 
-
-export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
+export const getAllUsers = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const users = await AuthAccessModel.find({}, { password: 0 });
     res.status(200).json(users);
@@ -185,7 +211,10 @@ export const getAllUsers = async (_req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
+export const getUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const userId = (req as any).user?.id;
 
@@ -203,7 +232,6 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     res.status(200).json({ success: true, user });
   } catch (error: any) {
     console.error("Error fetching user profile:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
-  }
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
 };
-

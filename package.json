@@ -7,24 +7,17 @@
   "engines": {
     "node": "18.x"
   },
-  
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-
     "build": "tsc",
-
     "install:ci": "npm ci",
     "install:prod": "npm ci",
-
     "start": "npm run build && node build/server.js",
-
     "pm2:start": "pm2 start build/server.js --name my-app --env production",
     "pm2:restart": "pm2 restart backend --update-env",
-
     "deploy": "npm run build && npm run install:prod && npm run pm2:restart && sudo systemctl reload nginx",
-     "test": "mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "mocha -r ts-node/register test/**/*.spec.ts"
   },
-  
   "author": "MT",
   "license": "ISC",
   "dependencies": {
