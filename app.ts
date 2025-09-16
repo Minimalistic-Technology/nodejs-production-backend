@@ -31,6 +31,9 @@ import newsubRoutes from './BookStore/routes/newsubRoutes';
 import productRoutes from './BookStore/routes/productRoutes';
 import siteSettingsRoutes from './BookStore/routes/siteSettingsRoutes';
 import subscriberRoutes from './BookStore/routes/subscriberRoutes';
+import paymentRoutes from './BookStore/routes/paymentRoutes';
+import otpAuthRoutes from './BookStore/routes/otpAuthRoutes';
+import cartRoutes from './BookStore/routes/cartRoutes';
 import propertyRoutes from './Siddhi-E-State/Property/routes/propertyRoutes';
 import redevelopmentRoutes from "./Siddhi-E-State/Property/routes/redevelopmentRoutes";
 import commercialRoutes from "./Siddhi-E-State/Property/routes/commercialRoutes";
@@ -108,6 +111,9 @@ app.use('/api/bookstore', newsubRoutes);
 app.use('/api/bookstore', productRoutes);
 app.use('/api/bookstore', siteSettingsRoutes);
 app.use('/api/bookstore', subscriberRoutes);
+app.use('/api/bookstore', paymentRoutes);
+app.use('/api/bookstore', otpAuthRoutes);
+app.use('/api/bookstore', cartRoutes);
 
 
 app.use('/api/property', propertyRoutes);

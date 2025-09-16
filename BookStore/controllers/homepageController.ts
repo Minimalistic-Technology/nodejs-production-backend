@@ -298,6 +298,32 @@ class BookController {
     }
   }
 
+  static async searchBooks(req: Request, res: Response): Promise<void> {
+  try {
+    const { bookName } = req.query;
+
+    if (!bookName || typeof bookName !== "string") {
+      res.status(400).json({ error: "bookName query parameter is required" });
+      return;
+    }
+
+    const books = await BookModel.find({
+      bookName: { $regex: bookName, $options: "i" } // case-insensitive
+    })
+      .limit(11)
+      .lean();
+
+    if (!books || books.length === 0) {
+      res.status(404).json({ error: "No books found" });
+      return;
+    }
+
+    res.status(200).json({ success: true, count: books.length, books });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to search books", details: err.message });
+  }
+}
+
   static async getBestSellers(req: Request, res: Response): Promise<void> {
     try {
       const books = await BookModel.find({ isBestSeller: true }).lean() as IPopulatedBook[];

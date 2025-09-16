@@ -1,9 +1,18 @@
-  import { Request, Response } from 'express';
+import { Request, Response } from 'express';
   import { User } from '../models/bulkUsers';
   import bcrypt from 'bcryptjs';
   import jwt from 'jsonwebtoken';
+import { AuthAccessModel } from "../models/authAccess";
+import crypto from "crypto";
 
- 
+function generateRandomPassword(length: number = 12): string {
+  return crypto
+    .randomBytes(length)
+    .toString("base64")   
+    .slice(0, length);
+}
+
+
   export const bulkCreateUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const { users } = req.body;
@@ -13,19 +22,21 @@
         return;
       }
 
+      
       const validUsers = users.map((u: any) => ({
         username: u.username,
         email: u.email,
-        role: u.role || 'user',
-        password: u.password || '',
-      })).filter(u => u.username && u.email && u.password);
+        role: u.role || 'User',
+        password: u.password || generateRandomPassword(),
+      })).filter(u => u.username && u.email);
 
       if (validUsers.length === 0) {
         res.status(400).json({ message: 'No valid users provided.' });
         return;
       }
+      console.log(validUsers)
 
-      const savedUsers = await User.insertMany(validUsers, { ordered: false });
+      const savedUsers = await AuthAccessModel.insertMany(validUsers, { ordered: false });
 
       res.status(201).json({
         success: true,
