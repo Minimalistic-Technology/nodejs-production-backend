@@ -77,7 +77,6 @@ export const getBlogById: RequestHandler = async (req, res) => {
 // ✅ Get User Blogs
 export const getUserBlogs: RequestHandler = async (req, res) => {
   const userReq = req as AuthenticatedRequest;
-  console.log('User ID:', userReq.user);
   if (!userReq.user?.userID) {
     res.status(401).json({ error: 'User not authenticated' });
     return;

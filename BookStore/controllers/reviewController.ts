@@ -11,11 +11,6 @@ export const getReviews = async (req: Request, res: Response): Promise<void> => 
     }).lean();
     res.status(200).json(reviews);
   } catch (err: any) {
-    console.error('Error fetching reviews:', {
-      message: err.message,
-      stack: err.stack,
-      request: req.url,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while fetching reviews', details: err.message });
   }
 };
@@ -37,11 +32,6 @@ export const getApprovedReviewsByBookId = async (req: Request, res: Response): P
     }).lean();
     res.status(200).json(reviews);
   } catch (err: any) {
-    console.error('Error fetching approved reviews by bookId:', {
-      message: err.message,
-      stack: err.stack,
-      bookId: req.params.bookId,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while fetching approved reviews', details: err.message });
   }
 };
@@ -80,11 +70,6 @@ export const createReview = async (req: Request, res: Response): Promise<void> =
     const savedReview = await review.save();
     res.status(201).json(savedReview);
   } catch (err: any) {
-    console.error('Error creating review:', {
-      message: err.message,
-      stack: err.stack,
-      body: req.body,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while creating the review', details: err.message });
   }
 };
@@ -106,11 +91,6 @@ export const getReviewById = async (req: Request, res: Response): Promise<void> 
     }
     res.status(200).json(review);
   } catch (err: any) {
-    console.error('Error fetching review by ID:', {
-      message: err.message,
-      stack: err.stack,
-      reviewId: req.params.id,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while fetching the review', details: err.message });
   }
 };
@@ -149,12 +129,6 @@ export const updateReview = async (req: Request, res: Response): Promise<void> =
     }
     res.status(200).json(review);
   } catch (err: any) {
-    console.error('Error updating review:', {
-      message: err.message,
-      stack: err.stack,
-      reviewId: req.params.id,
-      body: req.body,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while updating the review', details: err.message });
   }
 };
@@ -173,11 +147,6 @@ export const deleteReview = async (req: Request, res: Response): Promise<void> =
     }
     res.status(200).json({ message: 'Review deleted successfully' });
   } catch (err: any) {
-    console.error('Error deleting review:', {
-      message: err.message,
-      stack: err.stack,
-      reviewId: req.params.id,
-    });
     res.status(500).json({ error: 'An unexpected error occurred while deleting the review', details: err.message });
   }
 };

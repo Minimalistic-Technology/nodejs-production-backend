@@ -32,7 +32,6 @@ export default class BookRequestController {
       const savedRequest = await newRequest.save();
       res.status(201).json({ message: 'Book request submitted successfully', request: savedRequest });
     } catch (err: any) {
-      console.error('Error creating book request:', err);
       res.status(500).json({ error: 'An unexpected error occurred while submitting book request', details: err.message });
     }
   }
@@ -59,7 +58,6 @@ static async getMyBookRequests(req: Request, res: Response): Promise<void> {
       requests,
     });
   } catch (err: any) {
-    console.error("Error fetching user book requests:", err);
     res.status(500).json({ error: "Server error", details: err.message });
   }
 }
@@ -74,7 +72,6 @@ static async getMyBookRequests(req: Request, res: Response): Promise<void> {
       }
       res.status(200).json(requests);
     } catch (err: any) {
-      console.error('Error fetching book requests:', err);
       res.status(500).json({ error: 'An unexpected error occurred while fetching book requests', details: err.message });
     }
   }
