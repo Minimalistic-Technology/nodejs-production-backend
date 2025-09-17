@@ -22,6 +22,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const user = new AuthAccessModel({
       username,
       email,
+      phone,
       password: hashedPassword,
       role: "User",
     });
