@@ -28,6 +28,7 @@ function generateRandomPassword(length: number = 12): string {
         email: u.email,
         role: u.role || 'User',
         password: u.password || generateRandomPassword(),
+        phone: u.phone,
       })).filter(u => u.username && u.email);
 
       if (validUsers.length === 0) {
