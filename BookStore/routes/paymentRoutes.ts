@@ -111,7 +111,7 @@ router.post(
   express.json({ type: "/" }),
   async (req: Request, res: Response) => {
     try {
-      const webhookSecret =  "Dev@1234";
+      const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
       const signature = req.headers["x-razorpay-signature"] as string;
 
       const shasum = crypto.createHmac("sha256", webhookSecret);

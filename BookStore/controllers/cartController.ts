@@ -1,79 +1,119 @@
 import { Request, Response } from "express";
-import Cart, { ICart } from "../models/cart";
+import Cart from "../models/cart";
 
 export const getCart = async (req: Request, res: Response): Promise<void> => {
-  const cart = await Cart.findOne({ userId: (req as any).user.id });
-  res.json(cart || { userId: (req as any).user.id, items: [] });
+  try {
+    const cart = await Cart.findOne({ userId: (req as any).user.id }).populate({
+      path: "items.bookId",
+      select: "-__v",
+    });
+
+    res.json(cart || { userId: (req as any).user.id, items: [] });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch cart" });
+  }
 };
 
 export const addToCart = async (req: Request, res: Response): Promise<void> => {
-  const { bookId, title, price, quantity, stock } = req.body;
-  let cart = await Cart.findOne({ userId: (req as any).user.id });
+  try {
+    const { bookId, quantity, stock, condition } = req.body;
+    let cart = await Cart.findOne({ userId: (req as any).user.id });
 
-  if (!cart) {
-    cart = await Cart.create({
-      userId: (req as any).user.id,
-      items: [{ bookId, title, price, quantity, stock }],
-    });
-  } else {
-    const existingItem = cart.items.find(
-      item => item.bookId.toString() === bookId
-    );
-    if (existingItem) {
-      existingItem.quantity += quantity || 1;
-    } else {
-      cart.items.push({
-        bookId,
-        price,
-        quantity: quantity || 1,
-        condition: "New",
-        stock,
+    if (!cart) {
+      cart = await Cart.create({
+        userId: (req as any).user.id,
+        items: [{ bookId, quantity: quantity || 1, stock, condition: condition || "New" }],
       });
-    }
-    await cart.save();
-  }
+    } else {
+      // match both bookId and condition so Old/New can coexist
+      const existingItem = cart.items.find(
+        item => item.bookId.toString() === bookId && item.condition === (condition || "New")
+      );
 
-  res.json(cart);
+      if (existingItem) {
+        existingItem.quantity += quantity || 1;
+      } else {
+        cart.items.push({
+          bookId,
+          quantity: quantity || 1,
+          stock,
+          condition: condition || "New"
+        });
+      }
+
+      await cart.save();
+    }
+
+    await cart.populate({ path: "items.bookId", select: "-__v" });
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add item to cart" });
+  }
 };
 
+
 export const updateQuantity = async (req: Request, res: Response): Promise<void> => {
-  const { bookId, quantity } = req.body;
-  const cart = await Cart.findOne({ userId: (req as any).user.id });
-  if (!cart) {
-    res.status(404).json({ error: "Cart not found" });
-    return;
+  try {
+    const { bookId, quantity, condition } = req.body;
+    const cart = await Cart.findOne({ userId: (req as any).user.id });
+    if (!cart) {
+      res.status(404).json({ error: "Cart not found" });
+      return;
+    }
+
+    const item = cart.items.find(
+      item => item.bookId.toString() === bookId && item.condition === (condition || "New")
+    );
+    if (!item) {
+      res.status(404).json({ error: "Item not found" });
+      return;
+    }
+
+    item.quantity = quantity;
+    await cart.save();
+
+    await cart.populate({ path: "items.bookId", select: "-__v" });
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update quantity" });
   }
-
-  const item = cart.items.find(item => item.bookId.toString() === bookId);
-  if (!item) {
-    res.status(404).json({ error: "Item not found" });
-    return;
-  }
-
-  item.quantity = quantity;
-  await cart.save();
-
-  res.json(cart);
 };
 
 export const removeFromCart = async (req: Request, res: Response): Promise<void> => {
-  const { bookId } = req.params;
-  const cart = await Cart.findOne({ userId: (req as any).user.id });
-  if (!cart) {
-    res.status(404).json({ error: "Cart not found" });
-    return;
+  try {
+    const { bookId } = req.params;
+    const { condition } = req.query;
+
+    const cart = await Cart.findOne({ userId: (req as any).user.id });
+    if (!cart) {
+      res.status(404).json({ error: "Cart not found" });
+      return;
+    }
+
+    cart.items = cart.items.filter(
+      item => !(item.bookId.toString() === bookId && item.condition === (condition as string || "New"))
+    );
+
+    await cart.save();
+    await cart.populate({ path: "items.bookId", select: "-__v" });
+
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to remove item from cart" });
   }
-
-  cart.items = cart.items.filter(item => item.bookId.toString() !== bookId);
-  await cart.save();
-
-  res.json(cart);
 };
 
+
 export const clearCart = async (req: Request, res: Response): Promise<void> => {
-  await Cart.findOneAndUpdate(
-    { userId: (req as any).user.id },
-    { $set: { items: [] } }
-  );
-  res.json({ message: "Cart cleared" });
+  try {
+    const cart = await Cart.findOneAndUpdate(
+      { userId: (req as any).user.id },
+      { $set: { items: [] } },
+      { new: true }
+    );
+
+    res.json({ message: "Cart cleared", cart });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to clear cart" });
+  }
 };
