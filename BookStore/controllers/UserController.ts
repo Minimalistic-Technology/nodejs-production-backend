@@ -28,13 +28,13 @@ function generateRandomPassword(length: number = 12): string {
         email: u.email,
         role: u.role || 'User',
         password: u.password || generateRandomPassword(),
+        phone: u.phone,
       })).filter(u => u.username && u.email);
 
       if (validUsers.length === 0) {
         res.status(400).json({ message: 'No valid users provided.' });
         return;
       }
-      console.log(validUsers)
 
       const savedUsers = await AuthAccessModel.insertMany(validUsers, { ordered: false });
 
@@ -82,7 +82,6 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     }
 
     const normalizedRole = (role || 'user').toLowerCase().trim();
-    console.log('Normalized role:', normalizedRole);
 
     if (!['user', 'admin'].includes(normalizedRole)) {
       res.status(400).json({ error: 'Invalid role. Allowed roles: user, admin' });
@@ -102,7 +101,6 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({ message: 'User created successfully' });
   } catch (error: any) {
-    console.error('Signup error:', error);
     res.status(500).json({ error: 'Server error during signup' });
   }
 };
@@ -160,7 +158,6 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
         },
       });
     } catch (error: any) {
-      console.error('Login error:', error);
       res.status(500).json({ error: 'Server error during login' });
     }
   };

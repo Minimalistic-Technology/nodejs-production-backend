@@ -51,7 +51,6 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
   }
 
   try {
-    console.log(`Simulated sending message to ${number}: ${message}`);
     messageLog.push({ number, message, timestamp: Date.now() });
     res.status(200).json({ success: true, message: "Message 'sent' successfully (simulation)." });
   } catch (error: any) {

@@ -34,7 +34,6 @@ export const updateAccessToken = async (req: Request, res: Response): Promise<vo
     });
     res.status(200).json({ accessToken });
   } catch (err) {
-    console.error("Update access token error:", err);
     res.status(403).json({ error: 'Invalid refresh token' });
   }
 };
@@ -73,13 +72,11 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
           data: { username }
         });
       } catch (mailError) {
-        console.error("Error sending welcome email:", mailError);
       }
     }
 
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
-    console.error("Signup error:", err);
     res.status(500).json({ error: 'Signup failed' });
   }
 };
@@ -117,7 +114,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.json({ message: 'Login successful', accessToken , user: { id: user._id, username: user.username, email: user.email } });
   } catch (err) {
-    console.error("Login error:", err);
     res.status(500).json({ error: 'Login failed' });
   }
 };
@@ -135,7 +131,6 @@ export const refreshToken = (req: Request, res: Response): void => {
     const accessToken = generateAccessToken(decoded.userID);
     res.json({ accessToken });
   } catch (err) {
-    console.error("Refresh token error:", err);
     res.status(403).json({ error: 'Invalid refresh token' });
   }
 };

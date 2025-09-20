@@ -23,7 +23,6 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       data: { name, otp },
     });
 
-    console.log(`Generated OTP for ${email}: ${otp}`);
 
     otpStore.set(email, otp);
 

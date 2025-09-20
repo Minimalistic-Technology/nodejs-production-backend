@@ -22,13 +22,13 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const user = new AuthAccessModel({
       username,
       email,
+      phone,
       password: hashedPassword,
       role: "User",
     });
     await user.save();
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err: any) {
-    console.error("Signup error:", err); 
     res.status(500).json({
       error: err.message || "Signup failed", 
     });
@@ -231,7 +231,15 @@ export const getUserProfile = async (
 
     res.status(200).json({ success: true, user });
   } catch (error: any) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
-  }
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
+export const logout = (req: Request, res: Response): void => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };

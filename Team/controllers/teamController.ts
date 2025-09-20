@@ -4,7 +4,6 @@ import Team from "../models/team";
 export const createTeamMember = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, position, imageUrl } = req.body;
-    console.log("Creating team member:", { name, position, imageUrl });
     if (!imageUrl) res.status(400).json({ error: "Image URL required" });
     
     const newMember = new Team({

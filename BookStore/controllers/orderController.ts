@@ -66,7 +66,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       },
     });
   } catch (err) {
-    console.error('Error creating order:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -97,7 +96,6 @@ export const getAllOrders = async (_req: Request, res: Response): Promise<void> 
       })),
     });
   } catch (err) {
-    console.error('Error fetching orders:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -133,7 +131,6 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
       },
     });
   } catch (err) {
-    console.error('Error fetching order:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -177,7 +174,6 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
       },
     });
   } catch (err) {
-    console.error('Error updating order:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -185,7 +181,6 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
 export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    console.log(`Attempting to delete order with ID: ${id}`); // Debug log
     const order = await Order.findByIdAndDelete(id);
     if (!order) {
       res.status(404).json({ message: 'Order not found' });
@@ -200,7 +195,6 @@ export const deleteOrder = async (req: Request, res: Response): Promise<void> =>
     }
     res.status(200).json({ message: 'Order deleted successfully' });
   } catch (err) {
-    console.error('Error deleting order:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -266,7 +260,6 @@ export const cancelOrder = async (req: Request, res: Response): Promise<void> =>
       },
     });
   } catch (err) {
-    console.error('Error cancelling order:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -282,7 +275,6 @@ export const refundOrder = async (req: Request, res: Response): Promise<void> =>
     // Implement refund logic here (e.g., integrate with payment gateway)
     res.status(200).json({ message: 'Refund processed successfully' });
   } catch (err) {
-    console.error('Error processing refund:', err);
     res.status(500).json({ message: 'Server error', error: err instanceof Error ? err.message : 'Unknown error' });
   }
 };
@@ -322,7 +314,6 @@ export const getMyOrders = async (req: Request, res: Response): Promise<void> =>
       })),
     });
   } catch (err) {
-    console.error("Error fetching user orders:", err);
     res.status(500).json({ message: "Server error", error: err instanceof Error ? err.message : "Unknown error" });
   }
 };
