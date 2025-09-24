@@ -14,6 +14,7 @@ import Razorpay from 'razorpay'
 import mongoose from 'mongoose'
 import messageRoutes from './Message/routes/messageRoutes';
 import teamRoutes from './Team/routes/teamRoutes';
+import authUserRoutes from './Minimalistic-Technology/Auth/routes/authUserRoutes';
 import templateRoutes from './Minimalistic-Technology/Template/routes/templateRoutes';
 import testimonialRoutes from './Minimalistic-Technology/Testimonial/routes/testimonialRoutes';
 import authRoutes from './Minimalistic-Learning/Auth/routes/authRoutes';
@@ -89,6 +90,10 @@ app.use(
   profileRoutes
 );
 
+app.use(
+  "/api/mt/auth",
+  authUserRoutes
+);
 
 
 app.use(
