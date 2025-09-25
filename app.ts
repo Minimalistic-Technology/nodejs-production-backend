@@ -14,6 +14,7 @@ import Razorpay from 'razorpay'
 import mongoose from 'mongoose'
 import messageRoutes from './Message/routes/messageRoutes';
 import teamRoutes from './Team/routes/teamRoutes';
+import authUserRoutes from './Minimalistic-Technology/Auth/routes/authUserRoutes';
 import templateRoutes from './Minimalistic-Technology/Template/routes/templateRoutes';
 import testimonialRoutes from './Minimalistic-Technology/Testimonial/routes/testimonialRoutes';
 import authRoutes from './Minimalistic-Learning/Auth/routes/authRoutes';
@@ -53,7 +54,7 @@ app.use(
     // Don't "http://localhost:3000/"
     origin: ["https://minimalistictechnology.com", "https://www.minimalistictechnology.com","http://minimalistictechnology.com","http://www.minimalistictechnology.com",
 "https://minimalisticlearning.com","http://minimalisticlearning.com","https://www.minimalisticlearning.com","http://www.minimalisticlearning.com", 
-             "http://localhost:3000", "https://books-store-inky-one.vercel.app", "https://siddhi-e-state.vercel.app"],
+            "https://books-store-inky-one.vercel.app", "https://siddhi-e-state.vercel.app"],
     credentials: true,
   })
 );
@@ -89,6 +90,10 @@ app.use(
   profileRoutes
 );
 
+app.use(
+  "/api/mt/auth",
+  authUserRoutes
+);
 
 
 app.use(

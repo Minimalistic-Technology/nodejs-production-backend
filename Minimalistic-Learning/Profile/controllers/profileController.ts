@@ -8,7 +8,6 @@ export const createProfile = async (req: Request, res: Response): Promise<void> 
     await profile.save();
     res.status(201).json(profile);
   } catch (err: any) {
-    console.error('Create Error:', err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -30,7 +29,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 
     res.json(profile);
   } catch (err) {
-    console.error('Get Error:', err);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 };
@@ -63,7 +61,6 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
     res.json(profile);
   } catch (err: any) {
-    console.error('Update Error:', err);
     res.status(400).json({ error: err.message });
   }
 };

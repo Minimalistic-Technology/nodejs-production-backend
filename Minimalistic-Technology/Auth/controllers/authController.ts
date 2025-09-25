@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import User from '../models/AuthUser';
 import sendMail from '../utils/sendMail';
 
 interface JwtPayload {
@@ -39,7 +39,7 @@ export const updateAccessToken = async (req: Request, res: Response): Promise<vo
 };
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
-  const { username, email, password, phone, institute } = req.body;
+  const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
     res.status(400).json({ error: "Username, email, and password are required" });
@@ -57,8 +57,6 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       username,
       email,
       password, // Let schema hash it
-      phone,
-      institute
     });
 
     await newUser.save();
