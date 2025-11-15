@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/AuthUser';
-import sendMail from '../utils/sendMail';
+import sendMail from '../util/sendMail';
 
 interface JwtPayload {
   userID: string;

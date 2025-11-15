@@ -13,7 +13,7 @@ import crypto from 'crypto'
 import Razorpay from 'razorpay'
 import mongoose from 'mongoose'
 import messageRoutes from './Message/routes/messageRoutes';
-import teamRoutes from './Team/routes/teamRoutes';
+import teamRoutes from './Minimalistic-Technology/Team/routes/teamRoutes';
 import authUserRoutes from './Minimalistic-Technology/Auth/routes/authUserRoutes';
 import templateRoutes from './Minimalistic-Technology/Template/routes/templateRoutes';
 import testimonialRoutes from './Minimalistic-Technology/Testimonial/routes/testimonialRoutes';
