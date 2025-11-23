@@ -20,6 +20,8 @@ export const createTeamMember = async (req: Request, res: Response): Promise<voi
   }
 };
 
+
+
 export const getAllTeamMembers = async (
   _req: Request,
   res: Response
@@ -31,6 +33,7 @@ export const getAllTeamMembers = async (
     res.status(500).json({ error: "Failed to fetch team members" });
   }
 };
+
 
 export const getTeamMemberById = async (
   req: Request,
@@ -44,6 +47,7 @@ export const getTeamMemberById = async (
     res.status(500).json({ error: "Error fetching team member" });
   }
 };
+
 
 export const updateTeamMember = async (
   req: Request,
@@ -59,6 +63,7 @@ export const updateTeamMember = async (
     res.status(400).json({ error: "Failed to update team member" });
   }
 };
+
 
 export const deleteTeamMember = async (
   req: Request,

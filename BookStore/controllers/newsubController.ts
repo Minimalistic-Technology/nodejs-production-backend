@@ -29,7 +29,6 @@ const sendSubscriberEmail = async (
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error: any) {
-    console.error("Email send error:", error.message);
     return { success: false, message: error.message };
   }
 };

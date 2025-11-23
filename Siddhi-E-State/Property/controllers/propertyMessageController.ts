@@ -26,7 +26,6 @@ export const sendMessage = async (
 
   try {
    
-    console.log(`Simulated sending message to ${number}: ${message}`);
 
     messageLog.push({ number, message, timestamp: Date.now() });
 
@@ -67,7 +66,6 @@ export const sendEmail = async (req: Request, res: Response): Promise<void> => {
     projectDesc,
   }: EmailRequestBody = req.body;
 
-  console.log(req.body);
 
   try {
     const transporter = nodemailer.createTransport({
@@ -98,14 +96,6 @@ export const sendEmail = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error: any) {
-    console.error("❌ Email sending failed:", {
-      error: error.message,
-      stack: error.stack,
-      body: req.body,
-      envUser: process.env.EMAIL_USER,
-      envPassExists: !!process.env.EMAIL_PASS,
-    });
-
     res
       .status(500)
       .json({ error: "Failed to send email.", details: error.message });

@@ -10,7 +10,6 @@ const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextF
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  console.log('Auth Header:', authHeader);
 
   if (!authHeader) {
     res.status(401).json({ error: 'Authorization header missing.' });
@@ -32,7 +31,6 @@ const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextF
     req.user = decoded;
     next();
   } catch (err) {
-    console.error('JWT verification error:', err);
     res.status(403).json({ error: 'Invalid or expired token.' });
   }
 };

@@ -51,8 +51,7 @@ router.post("/order", isAuthenticated, async (req: Request, res: Response) => {
       user,
     });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ e, error: "Unable to create order" });
+    res.status(500).json({ error: "Unable to create order" });
   }
 });
 
@@ -88,10 +87,8 @@ router.post("/verify", async (req: Request, res: Response) => {
       { new: true }
     );
 
-    console.log("✅ Manual verification successful");
     res.json({ ok: true, order });
   } catch (e) {
-    console.error(e);
     res.status(500).json({ ok: false });
   }
 });
@@ -114,7 +111,7 @@ router.post(
   express.json({ type: "/" }),
   async (req: Request, res: Response) => {
     try {
-      const webhookSecret =  "Dev@1234";
+      const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
       const signature = req.headers["x-razorpay-signature"] as string;
 
       const shasum = crypto.createHmac("sha256", webhookSecret);
@@ -122,9 +119,8 @@ router.post(
       const digest = shasum.digest("hex");
 
       if (digest !== signature) {
-        console.error("Invalid webhook signature");
         res.status(400).send("Invalid signature");
-        return 
+        return;
       }
 
       const event = req.body.event;
@@ -132,7 +128,6 @@ router.post(
       switch (event) {
         case "payment.captured": {
           const payment = req.body.payload.payment.entity;
-          console.log("Payment Captured:", payment.id);
 
           await Order.findOneAndUpdate(
             { orderId: payment.order_id },
@@ -157,7 +152,7 @@ router.post(
 
         case "payment.failed": {
           const payment = req.body.payload.payment.entity;
-          console.log("Payment Failed:", payment.id);
+
 
           await Order.findOneAndUpdate(
             { orderId: payment.order_id },
@@ -181,12 +176,10 @@ router.post(
         }
 
         default:
-          console.log(" Unhandled event:", event);
       }
 
       res.status(200).json({ status: "ok" });
     } catch (err) {
-      console.error("Webhook error:", err);
       res.status(500).send("Server error");
     }
   }

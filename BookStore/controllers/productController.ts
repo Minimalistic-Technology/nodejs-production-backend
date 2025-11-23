@@ -88,7 +88,6 @@ export const bulkCreateProduct = async (
         .json({ message: "Products array is required and cannot be empty." });
       return;
     }
-console.log(req.body);
     // const validProducts = products.map(
     //   (p: any) =>
     //     ({
@@ -110,7 +109,7 @@ console.log(req.body);
     //     } = req.body)
 
     // );
-    // console.log(validProducts)
+
 
     if (products.length === 0) {
       res.status(400).json({ message: "No valid products provided." });

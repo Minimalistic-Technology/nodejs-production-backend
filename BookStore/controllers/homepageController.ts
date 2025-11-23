@@ -32,17 +32,13 @@ class BookController {
     const pathParts = book.categoryPath.split('/');
     const level = pathParts.length - 1;
 
-    console.log(`[getCategoryDiscount] Processing book: ${book.title}, categoryPath: ${book.categoryPath}, level: ${level}`);
-
   
     if (level >= 2) {
       const subCategoryPath = pathParts.slice(0, 2).join('/');
       const subCategory = await BookCategoryModel.findOne({ path: subCategoryPath });
       if (subCategory && subCategory.discount > 0) {
-        console.log(`[getCategoryDiscount] Applying Subcategory (Level 2) discount for ${subCategoryPath}: ${subCategory.discount}%`);
         return subCategory.discount;
       }
-      console.log(`[getCategoryDiscount] No Subcategory (Level 2) discount for ${subCategoryPath}`);
     }
 
   
@@ -50,15 +46,12 @@ class BookController {
       const categoryPath = pathParts[0];
       const category = await BookCategoryModel.findOne({ path: categoryPath }).exec();
       if (category && category.discount > 0) {
-        console.log(`[getCategoryDiscount] Applying Category (Level 1) discount for ${categoryPath}: ${category.discount}%`);
         return category.discount;
       }
-      console.log(`[getCategoryDiscount] No Category (Level 1) discount for ${categoryPath}`);
     }
 
 
     const bookDiscount = book.condition === "new" ? book.discountNew : book.discountOld;
-    console.log(`[getCategoryDiscount] Applying Book-level discount for ${book.title}: ${bookDiscount}%`);
     return bookDiscount;
   }
 
@@ -114,7 +107,6 @@ class BookController {
         .lean();
       res.status(200).json(categories);
     } catch (err: any) {
-      console.error("Error fetching categories:", err);
       res
         .status(500)
         .json({ error: "Failed to fetch categories", details: err.message });
@@ -128,10 +120,6 @@ class BookController {
         .replace(/^\/+|\/+$/g, "")
         .replace(/\s+/g, "-")
         .toLowerCase();
-
-      console.log(
-        `[getCategoryByPath] Raw path: ${path}, Normalized path: ${normalizedPath}`
-      );
 
       const category = (await BookCategoryModel.findOne({
         path: normalizedPath,
@@ -183,18 +171,11 @@ class BookController {
         .lean()) as IPopulatedCategory | null;
 
       if (!category) {
-        console.log(
-          `[getCategoryByPath] Category not found for path: ${normalizedPath}`
-        );
         res
           .status(404)
           .json({ error: `Category '${normalizedPath}' not found` });
         return;
       }
-
-      console.log(
-        `[getCategoryByPath] Found category: ${category.name} (path: ${category.path})`
-      );
 
       const booksWithDiscount = await Promise.all(
         category.books.map(async (book: IPopulatedBook) => {
@@ -209,10 +190,6 @@ class BookController {
       res.status(200).json({ ...category, books: booksWithDiscount });
     } catch (err: any) {
       const path = req.params.path;
-      console.error(
-        `[getCategoryByPath] Error fetching category for path '${path}':`,
-        err
-      );
       res
         .status(500)
         .json({ error: "Failed to fetch category", details: err.message });
@@ -227,9 +204,6 @@ class BookController {
         .replace(/\s+/g, "-")
         .toLowerCase();
 
-      console.log(
-        `[getBooksByCategoryPath] Raw path: ${path}, Normalized path: ${normalizedPath}`
-      );
 
     
       const books = await BookModel.find({
@@ -237,18 +211,11 @@ class BookController {
       }).lean() as IPopulatedBook[];
 
       if (!books || books.length === 0) {
-        console.log(
-          `[getBooksByCategoryPath] No books found for path: ${normalizedPath}`
-        );
         res
           .status(404)
           .json({ error: `No books found for category path '${normalizedPath}'` });
         return;
       }
-
-      console.log(
-        `[getBooksByCategoryPath] Found ${books.length} books for path: ${normalizedPath}`
-      );
 
       const booksWithDiscount = await Promise.all(
         books.map(async (book: IPopulatedBook) => {
@@ -443,10 +410,9 @@ class BookController {
         await parent.save();
       }
 
-      console.log(`Created category: ${path} (discount: ${validatedDiscount}%)`);
+
       res.status(201).json(category);
     } catch (err: any) {
-      console.error("Error creating category:", err);
       res
         .status(400)
         .json({ error: "Failed to create category", details: err.message });
@@ -516,10 +482,8 @@ class BookController {
       category.discount = (level <= 2 && discount !== undefined) ? discount : 0;
 
       await category.save();
-      console.log(`Updated category: ${category.path} (discount: ${category.discount}%)`);
       res.status(200).json(category);
     } catch (err: any) {
-      console.error("Error updating category:", err);
       res
         .status(400)
         .json({ error: "Failed to update category", details: err.message });
@@ -556,12 +520,10 @@ class BookController {
         }
       }
 
-      console.log(`Deleted category: ${path}`);
       res
         .status(200)
         .json({ message: "Category and descendants deleted successfully" });
     } catch (err: any) {
-      console.error("Error deleting category:", err);
       res
         .status(500)
         .json({ error: "Failed to delete category", details: err.message });
@@ -679,10 +641,8 @@ class BookController {
         ? book.price * (1 - effectiveDiscount / 100)
         : book.price;
 
-      console.log(`Created book in category: ${normalizedPath}, effectiveDiscount: ${effectiveDiscount}%`);
       res.status(201).json({ ...book.toObject(), effectiveDiscount, discountedPrice });
     } catch (err: any) {
-      console.error("Error creating book:", err);
       res
         .status(400)
         .json({ error: "Failed to create book", details: err.message });
@@ -707,7 +667,6 @@ class BookController {
 
       res.status(200).json({ ...book, effectiveDiscount, discountedPrice });
     } catch (err: any) {
-      console.error("Error fetching book:", err);
       res
         .status(404)
         .json({ error: "Failed to fetch book", details: err.message });
@@ -837,10 +796,8 @@ class BookController {
         ? book.price * (1 - effectiveDiscount / 100)
         : book.price;
 
-      console.log(`Updated book in category: ${normalizedPath}`);
       res.status(200).json({ ...book.toObject(), effectiveDiscount, discountedPrice });
     } catch (err: any) {
-      console.error("Error updating book:", err);
       res
         .status(400)
         .json({ error: "Failed to update book", details: err.message });
@@ -866,10 +823,8 @@ class BookController {
         await category.save();
       }
 
-      console.log(`Deleted book: ${bookId}`);
       res.status(200).json({ message: "Book deleted successfully" });
     } catch (err: any) {
-      console.error("Error deleting book:", err);
       res
         .status(500)
         .json({ error: "Failed to delete book", details: err.message });
@@ -899,10 +854,8 @@ class BookController {
 
       category.tags.push(formattedTag);
       await category.save();
-      console.log(`Added tag '${formattedTag}' to category: ${path}`);
       res.status(201).json({ tags: category.tags });
     } catch (err: any) {
-      console.error("Error creating tag:", err);
       res
         .status(400)
         .json({ error: "Failed to create tag", details: err.message });
@@ -922,10 +875,8 @@ class BookController {
         (t: string) => t.toLowerCase() !== tagName.toLowerCase()
       );
       await category.save();
-      console.log(`Deleted tag '${tagName}' from category: ${path}`);
       res.status(200).json({ tags: category.tags });
     } catch (err: any) {
-      console.error("Error deleting tag:", err);
       res
         .status(400)
         .json({ error: "Failed to delete tag", details: err.message });
@@ -936,12 +887,10 @@ class BookController {
     try {
       await BookCategoryModel.deleteMany({});
       await BookModel.deleteMany({});
-      console.log("Deleted all categories and books");
       res
         .status(200)
         .json({ message: "All categories and books deleted successfully" });
     } catch (err: any) {
-      console.error("Error deleting all categories:", err);
       res
         .status(500)
         .json({
@@ -955,10 +904,8 @@ class BookController {
     try {
       await BookModel.deleteMany({});
       await BookCategoryModel.updateMany({}, { $set: { books: [] } });
-      console.log("Deleted all books");
       res.status(200).json({ message: "All books deleted successfully" });
     } catch (err: any) {
-      console.error("Error deleting books:", err);
       res
         .status(500)
         .json({ error: "Failed to delete books", details: err.message });
